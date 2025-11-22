@@ -1,0 +1,16 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/"
+]
+
+[rpc_endpoints]
+# 默认指向 Kurtosis CDK L2（proxyd-001），可按需覆盖 ETH_RPC_URL
+l2 = "http://127.0.0.1:32824"
+

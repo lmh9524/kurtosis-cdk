@@ -1,0 +1,30 @@
+# KYCRegistry v0 (PoC) Storage Layout
+# Generated: 2025-11-22
+# Branch: main (v0.1-poc)
+# Contract: src/KYCRegistry.sol:KYCRegistry
+
+## Base Contracts Storage:
+- AccessControl (OpenZeppelin)
+  - Slot 0: RoleData mapping(bytes32 => RoleData) _roles
+  
+- Pausable (OpenZeppelin)
+  - Slot 1: bool _paused
+
+## KYCRegistry Storage:
+- Slot 2: mapping(address => KYCRecord) _records
+  - KYCRecord struct:
+    - Status status (uint8)
+    - uint8 level
+    - uint64 updatedAt
+    - uint256 expiry
+    - bytes32 kycProviderId
+
+## Constants (not in storage):
+- KYC_ADMIN_ROLE = keccak256("KYC_ADMIN_ROLE")
+- PAUSER_ROLE = keccak256("PAUSER_ROLE")
+
+## Total Storage Slots Used: 3 (0, 1, 2)
+
+Note: This is the baseline storage layout before upgradeability migration.
+Any future upgrades must preserve this layout and only append new variables.
+
