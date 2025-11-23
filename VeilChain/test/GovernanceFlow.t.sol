@@ -85,8 +85,9 @@ contract GovernanceFlowTest is Test {
         KYCRegistryV2 implementationV2 = new KYCRegistryV2();
 
         // 2. 由 Safe 通过 Timelock 调度一次 ProxyAdmin.upgrade 调用
-        bytes memory data = abi.encodeWithSelector(
-            ProxyAdmin.upgrade.selector,
+        // 为了兼容不同版本的 ProxyAdmin，这里直接使用函数签名编码，而不是依赖 ProxyAdmin.upgrade.selector
+        bytes memory data = abi.encodeWithSignature(
+            "upgrade(address,address)",
             ITransparentUpgradeableProxy(address(proxy)),
             address(implementationV2)
         );
