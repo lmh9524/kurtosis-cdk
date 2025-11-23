@@ -9,6 +9,15 @@ import "@openzeppelin/contracts/governance/TimelockController.sol";
 import "../src/KYCRegistryUpgradeable.sol";
 import "../src/KYCRegistryV2.sol";
 
+/// @notice 接口定义，用于类型安全的函数选择器引用
+interface IProxyAdmin {
+    function upgradeAndCall(
+        ITransparentUpgradeableProxy proxy,
+        address implementation,
+        bytes memory data
+    ) external payable;
+}
+
 /// @title GovernanceFlowTest
 /// @notice 演练「Safe -> Timelock -> ProxyAdmin -> Proxy 升级」完整治理链路。
 /// @dev 这里将 Safe 简化为一个普通 EOA 地址，重点验证 Timelock + ProxyAdmin 组合行为。
@@ -88,8 +97,9 @@ contract GovernanceFlowTest is Test {
         // 2. 由 Safe 通过 Timelock 调度一次 ProxyAdmin.upgradeAndCall 调用
         // OpenZeppelin v5.0.0 的 ProxyAdmin 只有 upgradeAndCall(proxy, implementation, data)
         // 如果不需要调用初始化函数，第三个参数传空 bytes（此时 value 必须为 0，Timelock 调用时已满足）
-        bytes memory data = abi.encodeWithSignature(
-            "upgradeAndCall(address,address,bytes)",
+        // 使用接口来确保函数选择器和参数类型完全匹配
+        bytes memory data = abi.encodeWithSelector(
+            IProxyAdmin.upgradeAndCall.selector,
             ITransparentUpgradeableProxy(address(proxy)),
             address(implementationV2),
             "" // 空 bytes，表示不调用任何函数
