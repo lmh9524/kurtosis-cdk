@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "../src/interfaces/ITransparentUpgradeableProxy.sol";
+import "../src/interfaces/IAccessController.sol";
 import "../src/AccessControllerUpgradeable.sol";
 import "../src/KYCRegistry.sol";
 import "../src/KYCDataTypes.sol";
@@ -167,7 +169,7 @@ contract AccessControllerUpgradeTest is Test {
         KYCRegistry newRegistry = new KYCRegistry(admin);
         
         vm.expectEmit(true, true, true, true);
-        emit IAccessController.KYCRegistryUpdated(
+        emit KYCRegistryUpdated(
             address(kycRegistry),
             address(newRegistry),
             admin
@@ -209,7 +211,7 @@ contract AccessControllerUpgradeTest is Test {
         AccessControllerUpgradeable newImplementation = new AccessControllerUpgradeable();
         
         proxyAdmin.upgradeAndCall(
-            TransparentUpgradeableProxy(payable(address(proxy))),
+            ITransparentUpgradeableProxy(address(proxy)),
             address(newImplementation),
             ""
         );

@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import "../src/interfaces/ITransparentUpgradeableProxy.sol";
 import "../src/KYCRegistryV2.sol";
 
 /// @title UpgradeKYCRegistryToV2
@@ -26,7 +27,7 @@ contract UpgradeKYCRegistryToV2 is Script {
         // 3. Upgrade the proxy to new implementation
         // Note: Must be called by ProxyAdmin owner
         proxyAdmin.upgradeAndCall(
-            TransparentUpgradeableProxy(payable(proxyAddress)),
+            ITransparentUpgradeableProxy(proxyAddress),
             address(newImplementation),
             "" // No initialization call needed for V2
         );

@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "../src/interfaces/ITransparentUpgradeableProxy.sol";
 import "../src/LimitControllerUpgradeable.sol";
 import "../src/KYCRegistry.sol";
 import "../src/KYCDataTypes.sol";
@@ -216,7 +217,7 @@ contract LimitControllerUpgradeTest is Test {
         LimitControllerUpgradeable newImplementation = new LimitControllerUpgradeable();
         
         proxyAdmin.upgradeAndCall(
-            TransparentUpgradeableProxy(payable(address(proxy))),
+            ITransparentUpgradeableProxy(address(proxy)),
             address(newImplementation),
             ""
         );

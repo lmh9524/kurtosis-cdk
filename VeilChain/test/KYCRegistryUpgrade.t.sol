@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "../src/interfaces/ITransparentUpgradeableProxy.sol";
 import "../src/KYCRegistryUpgradeable.sol";
 import "../src/KYCRegistryV2.sol";
 import "../src/KYCDataTypes.sol";
@@ -103,7 +104,7 @@ contract KYCRegistryUpgradeTest is Test {
 
         // Upgrade proxy to V2
         proxyAdmin.upgradeAndCall(
-            TransparentUpgradeableProxy(payable(address(proxy))),
+            ITransparentUpgradeableProxy(address(proxy)),
             address(implementationV2),
             ""
         );
