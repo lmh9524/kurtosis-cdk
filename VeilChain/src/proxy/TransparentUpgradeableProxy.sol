@@ -133,6 +133,10 @@ contract TransparentUpgradeableProxy is ITransparentUpgradeableProxy {
 
     // ========= Internal storage helpers =========
 
+    function _upgradeTo(address newImplementation) internal {
+        _setImplementation(newImplementation);
+    }
+
     function _getImplementation() internal view returns (address impl) {
         bytes32 slot = _IMPLEMENTATION_SLOT;
         assembly {
