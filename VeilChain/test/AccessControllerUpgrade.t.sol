@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "@openzeppelin/contracts/proxy/transparent/ITransparentUpgradeableProxy.sol";
 import "../src/interfaces/IAccessController.sol";
 import "../src/AccessControllerUpgradeable.sol";
 import "../src/KYCRegistry.sol";
@@ -213,12 +214,14 @@ contract AccessControllerUpgradeTest is Test {
         assertTrue(accessController.canTransfer(from, to));
         vm.stopPrank();
 
-        // 升级到新实现
+        // 升级到新实现（通过 ProxyAdmin）
         AccessControllerUpgradeable newImplementation = new AccessControllerUpgradeable();
-
-        // 以 ProxyAdmin 身份调用 Proxy 的升级函数
-        vm.prank(address(proxyAdmin));
-        proxy.upgradeToAndCall(address(newImplementation), "");
+        vm.prank(admin);
+        proxyAdmin.upgradeAndCall(
+            ITransparentUpgradeableProxy(address(proxy)),
+            address(newImplementation),
+            ""
+        );
         
         // 验证状态保持
         assertEq(address(accessController.kycRegistry()), address(kycRegistry));

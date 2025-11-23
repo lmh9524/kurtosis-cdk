@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import "@openzeppelin/contracts/proxy/transparent/ITransparentUpgradeableProxy.sol";
 import "../src/AccessControllerUpgradeable.sol";
 
 /// @notice Script to upgrade AccessControllerUpgradeable to a new implementation

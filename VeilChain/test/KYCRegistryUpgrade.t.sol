@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "@openzeppelin/contracts/proxy/transparent/ITransparentUpgradeableProxy.sol";
 import "../src/KYCRegistryUpgradeable.sol";
 import "../src/KYCRegistryV2.sol";
 import "../src/KYCDataTypes.sol";
@@ -17,14 +18,13 @@ contract KYCRegistryUpgradeTest is Test {
     address public admin = address(0x1);
     address public user1 = address(0x2);
     address public user2 = address(0x3);
-    address public proxyAdminOwner = address(this);
 
     function setUp() public {
         // Deploy implementation
         implementation = new KYCRegistryUpgradeable();
 
-        // Deploy ProxyAdmin
-        proxyAdmin = new ProxyAdmin(proxyAdminOwner);
+        // Deploy ProxyAdmin（owner = admin，与升级时使用的 msg.sender 保持一致）
+        proxyAdmin = new ProxyAdmin(admin);
 
         // Encode initialize call
         bytes memory initData = abi.encodeWithSelector(
@@ -101,9 +101,13 @@ contract KYCRegistryUpgradeTest is Test {
         // Deploy V2 implementation
         KYCRegistryV2 implementationV2 = new KYCRegistryV2();
 
-        // Upgrade proxy to V2
-        vm.prank(address(proxyAdmin));
-        proxy.upgradeToAndCall(address(implementationV2), "");
+        // Upgrade proxy to V2（通过 ProxyAdmin）
+        vm.prank(admin);
+        proxyAdmin.upgradeAndCall(
+            ITransparentUpgradeableProxy(address(proxy)),
+            address(implementationV2),
+            ""
+        );
 
         // Cast proxy to V2 interface (use non-admin address to avoid TransparentProxy restriction)
         vm.startPrank(user2);
