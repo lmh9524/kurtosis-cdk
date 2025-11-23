@@ -214,17 +214,16 @@ contract AccessControllerUpgradeTest is Test {
         vm.stopPrank();
 
         // 升级到新实现（通过 ProxyAdmin）
-        // NOTE: 由于当前引入的 ProxyAdmin + TransparentUpgradeableProxy 版本组合与预期不完全兼容，
-        // 这里的 upgradeAndCall 在实际执行时会 revert。我们在 Phase 1 中只验证这一事实，
-        // 真正的「升级后状态保持」将在后续统一升级 OZ 版本（路线 A）后再恢复测试。
         AccessControllerUpgradeable newImplementation = new AccessControllerUpgradeable();
         vm.prank(admin);
-        vm.expectRevert();
         proxyAdmin.upgradeAndCall(
             ITransparentUpgradeableProxy(address(proxy)),
             address(newImplementation),
             ""
         );
+
+        // 升级后保持行为与状态
+        assertTrue(accessController.canTransfer(from, to));
     }
 }
 

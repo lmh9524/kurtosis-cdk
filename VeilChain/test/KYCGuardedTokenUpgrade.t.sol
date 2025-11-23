@@ -270,15 +270,18 @@ contract KYCGuardedTokenUpgradeTest is Test {
         vm.stopPrank();
 
         // 升级到新实现（通过 ProxyAdmin）
-        // NOTE: 当前 Proxy 栈下，此调用会 revert，这里只验证该行为。
         KYCGuardedTokenUpgradeable newImplementation = new KYCGuardedTokenUpgradeable();
         vm.prank(admin);
-        vm.expectRevert();
         proxyAdmin.upgradeAndCall(
             ITransparentUpgradeableProxy(address(proxy)),
             address(newImplementation),
             ""
         );
+
+        // 升级后余额和基本属性保持不变
+        assertEq(token.balanceOf(userA), balanceBefore);
+        assertEq(token.name(), "KYC Guarded Token");
+        assertEq(token.symbol(), "KGT");
     }
 }
 

@@ -102,12 +102,25 @@ contract KYCRegistryUpgradeTest is Test {
 
         // Upgrade proxy to V2（通过 ProxyAdmin）
         vm.prank(admin);
-        vm.expectRevert();
         proxyAdmin.upgradeAndCall(
             ITransparentUpgradeableProxy(address(proxy)),
             address(implementationV2),
             ""
         );
+
+        // After upgrade, the proxy should point to V2 but keep state
+        KYCRegistryV2 v2 = KYCRegistryV2(address(proxy));
+
+        // State from V1 is preserved
+        assertTrue(v2.isKYCApproved(user1));
+        assertEq(v2.getRiskLevel(user1), 3);
+        assertTrue(v2.isKYCApproved(user2));
+        assertEq(v2.getRiskLevel(user2), 1);
+
+        // New V2 helper functions work as expected
+        assertTrue(v2.hasMinimumLevel(user1, 2));
+        assertFalse(v2.hasMinimumLevel(user2, 2));
+        assertEq(keccak256(bytes(v2.version())), keccak256(bytes("v2.0.0")));
     }
 
     function test_PauseUnpause() public {

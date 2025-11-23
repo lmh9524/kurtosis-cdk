@@ -220,16 +220,20 @@ contract AssetRegistryUpgradeTest is Test {
         vm.stopPrank();
 
         // 升级到新实现（通过 ProxyAdmin）
-        // NOTE: 当前 ProxyAdmin + TransparentUpgradeableProxy 组合在本项目引入的 OZ 版本下，
-        // 调用 upgradeAndCall 会 revert。这里仅验证这一事实，真正的升级后状态保持将在后续统一升级 OZ 版本后再测。
         AssetRegistryUpgradeable newImplementation = new AssetRegistryUpgradeable();
         vm.prank(admin);
-        vm.expectRevert();
         proxyAdmin.upgradeAndCall(
             ITransparentUpgradeableProxy(address(proxy)),
             address(newImplementation),
             ""
         );
+
+        // 升级后，已注册资产及其状态保持不变
+        assertTrue(registry.isRegistered(assetId));
+        RWAAssetTypes.AssetMetadata memory asset = registry.getAsset(assetId);
+        assertEq(uint256(asset.status), uint256(RWAAssetTypes.AssetStatus.Active));
+        assertEq(asset.assetId, assetId);
+        assertEq(asset.token, tokenAddr);
     }
 }
 
