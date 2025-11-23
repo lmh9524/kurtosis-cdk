@@ -87,7 +87,7 @@ contract GovernanceFlowTest is Test {
 
         // 2. 由 Safe 通过 Timelock 调度一次 ProxyAdmin.upgradeAndCall 调用
         // OpenZeppelin v5.0.0 的 ProxyAdmin 只有 upgradeAndCall(proxy, implementation, data)
-        // 如果不需要调用初始化函数，第三个参数传空 bytes
+        // 如果不需要调用初始化函数，第三个参数传空 bytes（此时 value 必须为 0，Timelock 调用时已满足）
         bytes memory data = abi.encodeWithSignature(
             "upgradeAndCall(address,address,bytes)",
             ITransparentUpgradeableProxy(address(proxy)),
