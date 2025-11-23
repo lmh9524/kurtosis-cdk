@@ -80,15 +80,16 @@ contract TransparentUpgradeableProxy is ITransparentUpgradeableProxy {
     {
         _upgradeTo(newImplementation);
 
+        // 本项目中不依赖在升级时转 ETH，统一要求 msg.value 为 0，简化实现。
+        require(msg.value == 0, "Proxy: value not supported");
+
         if (data.length > 0) {
-            (bool success, bytes memory returndata) = newImplementation.delegatecall{value: msg.value}(data);
+            (bool success, bytes memory returndata) = newImplementation.delegatecall(data);
             if (!success) {
                 assembly {
                     revert(add(returndata, 32), mload(returndata))
                 }
             }
-        } else {
-            require(msg.value == 0, "Proxy: non-zero value with empty data");
         }
     }
 
