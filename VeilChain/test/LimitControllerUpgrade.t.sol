@@ -212,15 +212,11 @@ contract LimitControllerUpgradeTest is Test {
         uint256 remainingBefore = limitController.getRemainingDailyOutflow(user);
         
         // 升级到新实现
-        vm.startPrank(admin);
         LimitControllerUpgradeable newImplementation = new LimitControllerUpgradeable();
-        
-        proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
-            address(newImplementation),
-            ""
-        );
-        vm.stopPrank();
+
+        // 以 ProxyAdmin 身份调用 Proxy 的升级函数
+        vm.prank(address(proxyAdmin));
+        proxy.upgradeToAndCall(address(newImplementation), "");
         
         // 验证状态保持
         assertEq(address(limitController.kycRegistry()), address(kycRegistry));

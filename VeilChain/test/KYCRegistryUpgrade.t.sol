@@ -102,11 +102,8 @@ contract KYCRegistryUpgradeTest is Test {
         KYCRegistryV2 implementationV2 = new KYCRegistryV2();
 
         // Upgrade proxy to V2
-        proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
-            address(implementationV2),
-            ""
-        );
+        vm.prank(address(proxyAdmin));
+        proxy.upgradeToAndCall(address(implementationV2), "");
 
         // Cast proxy to V2 interface (use non-admin address to avoid TransparentProxy restriction)
         vm.startPrank(user2);

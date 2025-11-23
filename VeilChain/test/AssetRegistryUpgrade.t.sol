@@ -204,9 +204,8 @@ contract AssetRegistryUpgradeTest is Test {
     }
     
     function test_Upgrade() public {
-        vm.startPrank(admin);
-        
         // 注册一些资产
+        vm.startPrank(admin);
         registry.registerAsset(
             assetId,
             tokenAddr,
@@ -217,15 +216,15 @@ contract AssetRegistryUpgradeTest is Test {
         );
         
         registry.setAssetStatus(assetId, RWAAssetTypes.AssetStatus.Active);
-        
+
+        vm.stopPrank();
+
         // 升级到新实现
         AssetRegistryUpgradeable newImplementation = new AssetRegistryUpgradeable();
-        
-        proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
-            address(newImplementation),
-            ""
-        );
+
+        // 以 ProxyAdmin 身份调用 Proxy 的升级函数
+        vm.prank(address(proxyAdmin));
+        proxy.upgradeToAndCall(address(newImplementation), "");
         
         // 验证状态保持
         assertTrue(registry.isRegistered(assetId));
@@ -247,8 +246,6 @@ contract AssetRegistryUpgradeTest is Test {
         );
         
         assertTrue(registry.isRegistered(newAssetId));
-        
-        vm.stopPrank();
     }
 }
 

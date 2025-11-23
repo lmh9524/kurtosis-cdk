@@ -189,9 +189,8 @@ contract AccessControllerUpgradeTest is Test {
     }
     
     function test_Upgrade() public {
-        vm.startPrank(admin);
-        
         // 设置一些状态
+        vm.startPrank(admin);
         address from = address(0x100);
         address to = address(0x101);
         
@@ -212,21 +211,18 @@ contract AccessControllerUpgradeTest is Test {
         );
         
         assertTrue(accessController.canTransfer(from, to));
-        
+        vm.stopPrank();
+
         // 升级到新实现
         AccessControllerUpgradeable newImplementation = new AccessControllerUpgradeable();
-        
-        proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
-            address(newImplementation),
-            ""
-        );
+
+        // 以 ProxyAdmin 身份调用 Proxy 的升级函数
+        vm.prank(address(proxyAdmin));
+        proxy.upgradeToAndCall(address(newImplementation), "");
         
         // 验证状态保持
         assertEq(address(accessController.kycRegistry()), address(kycRegistry));
         assertTrue(accessController.canTransfer(from, to));
-        
-        vm.stopPrank();
     }
 }
 
