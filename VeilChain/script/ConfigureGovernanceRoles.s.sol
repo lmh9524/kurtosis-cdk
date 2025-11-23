@@ -30,8 +30,22 @@ contract ConfigureGovernanceRoles is Script {
 
         vm.startBroadcast();
 
-        // --------- KYCRegistry ---------
-        // DEFAULT_ADMIN_ROLE -> Safe
+        _configureKYCRegistry(kyc, safe, kycOperator, riskOfficer, oldAdmin);
+        _configureAccessController(access, safe, riskOfficer, oldAdmin);
+        _configureLimitController(limit, safe, timelock, riskOfficer, oldAdmin);
+        _configureKGT(kgt, safe, minter, riskOfficer, oldAdmin);
+        _configureAssetRegistry(asset, safe, riskOfficer, oldAdmin);
+
+        vm.stopBroadcast();
+    }
+
+    function _configureKYCRegistry(
+        KYCRegistryUpgradeable kyc,
+        address safe,
+        address kycOperator,
+        address riskOfficer,
+        address oldAdmin
+    ) internal {
         bytes32 dr = kyc.DEFAULT_ADMIN_ROLE();
         bytes32 kycAdmin = kyc.KYC_ADMIN_ROLE();
         bytes32 pauser = kyc.PAUSER_ROLE();
@@ -43,22 +57,34 @@ contract ConfigureGovernanceRoles is Script {
         kyc.revokeRole(kycAdmin, oldAdmin);
 
         kyc.grantRole(pauser, riskOfficer);
-        // 视需要从 oldAdmin 撤销 PAUSER_ROLE
+        // 如需撤销 oldAdmin 的 PAUSER_ROLE，可在此追加 revokeRole(pauser, oldAdmin);
+    }
 
-        // --------- AccessController ---------
-        dr = access.DEFAULT_ADMIN_ROLE();
-        pauser = access.PAUSER_ROLE();
+    function _configureAccessController(
+        AccessControllerUpgradeable access,
+        address safe,
+        address riskOfficer,
+        address oldAdmin
+    ) internal {
+        bytes32 dr = access.DEFAULT_ADMIN_ROLE();
+        bytes32 pauser = access.PAUSER_ROLE();
 
         access.grantRole(dr, safe);
         access.revokeRole(dr, oldAdmin);
 
         access.grantRole(pauser, riskOfficer);
+    }
 
-        // --------- LimitController ---------
-        dr = limit.DEFAULT_ADMIN_ROLE();
+    function _configureLimitController(
+        LimitControllerUpgradeable limit,
+        address safe,
+        address timelock,
+        address riskOfficer,
+        address oldAdmin
+    ) internal {
+        bytes32 dr = limit.DEFAULT_ADMIN_ROLE();
         bytes32 limitAdmin = limit.LIMIT_ADMIN_ROLE();
-        pauser = limit.PAUSER_ROLE();
-        bytes32 callerRole = limit.CALLER_ROLE();
+        bytes32 pauser = limit.PAUSER_ROLE();
 
         // DEFAULT_ADMIN_ROLE 仍由 Safe 持有，用于治理层变更
         limit.grantRole(dr, safe);
@@ -72,13 +98,18 @@ contract ConfigureGovernanceRoles is Script {
         limit.grantRole(pauser, riskOfficer);
 
         // CALLER_ROLE 由业务合约持有（例如 KGT），此处不做变更
-        // limit.grantRole(callerRole, <KGT address>) 由部署脚本完成
-        callerRole; // silence unused-variable warning
+    }
 
-        // --------- KYCGuardedToken (KGT) ---------
-        dr = kgt.DEFAULT_ADMIN_ROLE();
+    function _configureKGT(
+        KYCGuardedTokenUpgradeable kgt,
+        address safe,
+        address minter,
+        address riskOfficer,
+        address oldAdmin
+    ) internal {
+        bytes32 dr = kgt.DEFAULT_ADMIN_ROLE();
         bytes32 minterRole = kgt.MINTER_ROLE();
-        pauser = kgt.PAUSER_ROLE();
+        bytes32 pauser = kgt.PAUSER_ROLE();
 
         kgt.grantRole(dr, safe);
         kgt.revokeRole(dr, oldAdmin);
@@ -87,11 +118,17 @@ contract ConfigureGovernanceRoles is Script {
         kgt.revokeRole(minterRole, oldAdmin);
 
         kgt.grantRole(pauser, riskOfficer);
+    }
 
-        // --------- AssetRegistry ---------
-        dr = asset.DEFAULT_ADMIN_ROLE();
+    function _configureAssetRegistry(
+        AssetRegistryUpgradeable asset,
+        address safe,
+        address riskOfficer,
+        address oldAdmin
+    ) internal {
+        bytes32 dr = asset.DEFAULT_ADMIN_ROLE();
         bytes32 assetAdmin = asset.ASSET_ADMIN_ROLE();
-        pauser = asset.PAUSER_ROLE();
+        bytes32 pauser = asset.PAUSER_ROLE();
 
         asset.grantRole(dr, safe);
         asset.revokeRole(dr, oldAdmin);
@@ -100,8 +137,6 @@ contract ConfigureGovernanceRoles is Script {
         asset.revokeRole(assetAdmin, oldAdmin);
 
         asset.grantRole(pauser, riskOfficer);
-
-        vm.stopBroadcast();
     }
 }
 
