@@ -85,12 +85,14 @@ contract GovernanceFlowTest is Test {
         // 1. 部署 V2 实现
         KYCRegistryV2 implementationV2 = new KYCRegistryV2();
 
-        // 2. 由 Safe 通过 Timelock 调度一次 ProxyAdmin.upgrade 调用
-        // 为了兼容不同版本的 ProxyAdmin，这里直接使用函数签名编码，而不是依赖 ProxyAdmin.upgrade.selector
+        // 2. 由 Safe 通过 Timelock 调度一次 ProxyAdmin.upgradeAndCall 调用
+        // OpenZeppelin v5.0.0 的 ProxyAdmin 只有 upgradeAndCall(proxy, implementation, data)
+        // 如果不需要调用初始化函数，第三个参数传空 bytes
         bytes memory data = abi.encodeWithSignature(
-            "upgrade(address,address)",
+            "upgradeAndCall(address,address,bytes)",
             ITransparentUpgradeableProxy(address(proxy)),
-            address(implementationV2)
+            address(implementationV2),
+            "" // 空 bytes，表示不调用任何函数
         );
 
         bytes32 predecessor = bytes32(0);
