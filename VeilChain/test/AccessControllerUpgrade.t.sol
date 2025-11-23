@@ -14,6 +14,13 @@ contract AccessControllerUpgradeTest is Test {
     KYCRegistry public kycRegistry;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public proxy;
+
+    // 为了配合 vm.expectEmit，在测试合约中重新声明事件签名
+    event KYCRegistryUpdated(
+        address indexed oldRegistry,
+        address indexed newRegistry,
+        address indexed operator
+    );
     
     address public admin = address(0x1);
     address public user = address(0x2);
