@@ -6,8 +6,7 @@ solc_version = "0.8.20"
 optimizer = true
 optimizer_runs = 200
 remappings = [
-    # 使用同一套 OpenZeppelin v5.0.2 库，基础合约与 upgradeable 合约保持版本一致
-    "@openzeppelin/contracts/=lib/openzeppelin-contracts-upgradeable/lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
     "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/"
 ]
 
