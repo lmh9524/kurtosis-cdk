@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "../src/proxy/ProxyAdmin.sol";
 
 /// @notice 将一组 ProxyAdmin 的 owner 转移到 TimelockController。
 /// @dev 具体 ProxyAdmin 地址通过环境变量注入，便于在不同环境复用。

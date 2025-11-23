@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import "../src/proxy/TransparentUpgradeableProxy.sol";
+import "../src/proxy/ProxyAdmin.sol";
 import "../src/KYCGuardedTokenUpgradeable.sol";
 
 contract DeployKYCGuardedTokenUpgradeable is Script {
