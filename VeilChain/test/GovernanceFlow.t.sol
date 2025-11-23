@@ -33,7 +33,8 @@ contract GovernanceFlowTest is Test {
         proposers[0] = safe;
 
         address[] memory executors = new address[](1);
-        executors[0] = address(0);
+        // 将 Safe 同时设为 proposer 和 executor，避免依赖 TimelockController 对 address(0) 的特殊处理实现
+        executors[0] = safe;
 
         timelock = new TimelockController(
             2 days,
@@ -95,7 +96,7 @@ contract GovernanceFlowTest is Test {
         bytes32 predecessor = bytes32(0);
         bytes32 salt = keccak256("kyc-upgrade-v2");
 
-        // Safe 发起 schedule
+        // Safe 发起 schedule（作为 proposer）
         vm.prank(safe);
         timelock.schedule(
             address(proxyAdmin),
@@ -106,7 +107,8 @@ contract GovernanceFlowTest is Test {
             timelock.getMinDelay()
         );
 
-        // 时间前，执行应失败
+        // 时间前，由 Safe 直接尝试执行应失败（operation not ready）
+        vm.prank(safe);
         vm.expectRevert();
         timelock.execute(
             address(proxyAdmin),
@@ -119,8 +121,8 @@ contract GovernanceFlowTest is Test {
         // 快进时间到 minDelay 之后
         vm.warp(block.timestamp + timelock.getMinDelay());
 
-        // 3. 任何人都可以触发 execute（这里用 deployer）
-        vm.prank(deployer);
+        // 3. 到期后，由 Safe 作为 executor 触发 execute
+        vm.prank(safe);
         timelock.execute(
             address(proxyAdmin),
             0,
