@@ -95,6 +95,7 @@ contract GovernanceFlowTest is Test {
 
         bytes32 predecessor = bytes32(0);
         bytes32 salt = keccak256("kyc-upgrade-v2");
+        uint256 delay = timelock.getMinDelay();
 
         // Safe 发起 schedule（作为 proposer）
         vm.prank(safe);
@@ -104,7 +105,7 @@ contract GovernanceFlowTest is Test {
             data,
             predecessor,
             salt,
-            timelock.getMinDelay()
+            delay
         );
 
         // 时间前，由 Safe 直接尝试执行应失败（operation not ready）
