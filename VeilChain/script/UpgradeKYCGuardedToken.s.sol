@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import "../src/interfaces/ITransparentUpgradeableProxy.sol";
 import "../src/KYCGuardedTokenUpgradeable.sol";
 
 /// @notice Script to upgrade KYCGuardedTokenUpgradeable to a new implementation
