@@ -26,7 +26,7 @@ contract UpgradeKYCRegistryToV2 is Script {
         // 3. Upgrade the proxy to new implementation
         // Note: Must be called by ProxyAdmin owner
         proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(proxyAddress),
+            TransparentUpgradeableProxy(payable(proxyAddress)),
             address(newImplementation),
             "" // No initialization call needed for V2
         );

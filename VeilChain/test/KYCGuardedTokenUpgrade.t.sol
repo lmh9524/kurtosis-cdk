@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import "@openzeppelin/contracts/proxy/transparent/ITransparentUpgradeableProxy.sol";
 import "../src/KYCGuardedTokenUpgradeable.sol";
 import "../src/AccessControllerUpgradeable.sol";
 import "../src/LimitControllerUpgradeable.sol";
@@ -273,7 +272,7 @@ contract KYCGuardedTokenUpgradeTest is Test {
         KYCGuardedTokenUpgradeable newImplementation = new KYCGuardedTokenUpgradeable();
         
         proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
+            TransparentUpgradeableProxy(payable(address(proxy))),
             address(newImplementation),
             ""
         );

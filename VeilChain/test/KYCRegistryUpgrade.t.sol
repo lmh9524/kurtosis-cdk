@@ -103,7 +103,7 @@ contract KYCRegistryUpgradeTest is Test {
 
         // Upgrade proxy to V2
         proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(address(proxy)),
+            TransparentUpgradeableProxy(payable(address(proxy))),
             address(implementationV2),
             ""
         );

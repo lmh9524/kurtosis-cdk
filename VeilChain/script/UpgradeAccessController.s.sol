@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import "@openzeppelin/contracts/proxy/transparent/ITransparentUpgradeableProxy.sol";
 import "../src/AccessControllerUpgradeable.sol";
 
 /// @notice Script to upgrade AccessControllerUpgradeable to a new implementation
@@ -22,7 +21,7 @@ contract UpgradeAccessController is Script {
         // 2. 通过 ProxyAdmin 升级 Proxy
         ProxyAdmin proxyAdmin = ProxyAdmin(proxyAdminAddr);
         proxyAdmin.upgradeAndCall(
-            ITransparentUpgradeableProxy(proxyAddr),
+            TransparentUpgradeableProxy(payable(proxyAddr)),
             address(newImplementation),
             "" // 无需调用额外的初始化函数
         );
