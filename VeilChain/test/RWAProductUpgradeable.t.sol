@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../src/RWAProductUpgradeable.sol";
 import "../src/KYCDataTypes.sol";
+import "../src/proxy/TransparentUpgradeableProxy.sol";
+import "../src/proxy/ProxyAdmin.sol";
 import "./mocks/MockERC20.sol";
 
 contract RWAProductUpgradeableTest is Test {
@@ -30,9 +32,27 @@ contract RWAProductUpgradeableTest is Test {
         // Deploy a minimal KYC registry mock (EOA placeholder)
         kycRegistry = address(0x1234);
 
-        // Deploy product and initialize
-        product = new RWAProductUpgradeable();
-        product.initialize(admin, kycRegistry, address(0));
+        // Deploy implementation
+        RWAProductUpgradeable implementation = new RWAProductUpgradeable();
+
+        // Deploy ProxyAdmin owned by admin
+        ProxyAdmin proxyAdmin = new ProxyAdmin(admin);
+
+        // Encode initialize call for proxy
+        bytes memory initData = abi.encodeCall(
+            RWAProductUpgradeable.initialize,
+            (admin, kycRegistry, address(0))
+        );
+
+        // Deploy transparent proxy pointing to implementation
+        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
+            address(implementation),
+            address(proxyAdmin),
+            initData
+        );
+
+        // Wrap proxy as RWAProductUpgradeable
+        product = RWAProductUpgradeable(address(proxy));
 
         vm.stopPrank();
     }
