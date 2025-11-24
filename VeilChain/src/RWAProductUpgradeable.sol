@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IKYCRegistry.sol";
 import "./interfaces/IAssetRegistry.sol";
 
@@ -19,7 +19,7 @@ contract RWAProductUpgradeable is
     AccessControlUpgradeable,
     PausableUpgradeable
 {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeERC20 for IERC20;
     
     bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
@@ -125,7 +125,7 @@ contract RWAProductUpgradeable is
         uint256 amount = shares * product.pricePerShare / 1e18;
         
         // 完整的转账逻辑
-        IERC20Upgradeable token = IERC20Upgradeable(product.underlyingToken);
+        IERC20 token = IERC20(product.underlyingToken);
         token.safeTransferFrom(msg.sender, address(this), amount);
         
         holdings[productId][msg.sender] += shares;
@@ -144,7 +144,7 @@ contract RWAProductUpgradeable is
         uint256 amount = shares * product.pricePerShare / 1e18;
         
         // 完整的转账逻辑
-        IERC20Upgradeable token = IERC20Upgradeable(product.underlyingToken);
+        IERC20 token = IERC20(product.underlyingToken);
         token.safeTransfer(msg.sender, amount);
         
         holdings[productId][msg.sender] -= shares;
@@ -169,7 +169,7 @@ contract RWAProductUpgradeable is
         require(product.status == ProductStatus.Locked || product.status == ProductStatus.Active, "Invalid status");
         require(daysHeld > 0 && daysHeld <= 365, "Invalid days");
         
-        IERC20Upgradeable token = IERC20Upgradeable(product.underlyingToken);
+        IERC20 token = IERC20(product.underlyingToken);
         
         for (uint256 i = 0; i < investors.length; i++) {
             address investor = investors[i];
@@ -202,7 +202,7 @@ contract RWAProductUpgradeable is
         product.status = ProductStatus.Matured;
         emit ProductStatusChanged(productId, oldStatus, ProductStatus.Matured);
         
-        IERC20Upgradeable token = IERC20Upgradeable(product.underlyingToken);
+        IERC20 token = IERC20(product.underlyingToken);
         
         // 计算从最后一次派息到到期的天数
         uint256 daysToMaturity = (product.maturityDate - lastInterestDistribution[productId]) / 1 days;
