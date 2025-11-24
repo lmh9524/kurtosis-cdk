@@ -61,7 +61,7 @@ contract KYCRegistryUpgradeable is
     }
 
     /// @inheritdoc IKYCRegistry
-    function isKYCApproved(address user) public view override returns (bool) {
+    function isKYCApproved(address user) public view virtual override returns (bool) {
         KYCRecord memory record = _records[user];
 
         if (record.status != Status.Approved) {
@@ -76,7 +76,7 @@ contract KYCRegistryUpgradeable is
     }
 
     /// @inheritdoc IKYCRegistry
-    function getRiskLevel(address user) public view override returns (uint8) {
+    function getRiskLevel(address user) public view virtual override returns (uint8) {
         return _records[user].level;
     }
 

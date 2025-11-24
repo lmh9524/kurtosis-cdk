@@ -17,15 +17,15 @@ contract KYCRegistryV2Test is Test {
     function setUp() public {
         vm.startPrank(admin);
         
-        // 部署 ProxyAdmin
-        proxyAdmin = new ProxyAdmin();
+        // 部署 ProxyAdmin（owner 设置为 admin）
+        proxyAdmin = new ProxyAdmin(admin);
         
         // 部署实现合约
         KYCRegistryUpgradeableV2 impl = new KYCRegistryUpgradeableV2();
         
         // 部署代理
         bytes memory initData = abi.encodeWithSelector(
-            KYCRegistryUpgradeableV2.initialize.selector,
+            KYCRegistryUpgradeable.initialize.selector,
             admin
         );
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
@@ -159,7 +159,10 @@ contract KYCRegistryV2Test is Test {
         
         // 部署新实现（模拟升级到 V3）
         KYCRegistryUpgradeableV2 newImpl = new KYCRegistryUpgradeableV2();
-        proxyAdmin.upgrade(address(kycRegistry), address(newImpl));
+        proxyAdmin.upgrade(
+            ITransparentUpgradeableProxy(payable(address(kycRegistry))),
+            address(newImpl)
+        );
         
         // 验证数据未丢失
         assertTrue(kycRegistry.isKYCApproved(user) == approvedBefore);

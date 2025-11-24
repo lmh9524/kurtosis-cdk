@@ -46,13 +46,13 @@ contract KYCRegistryUpgradeableV2 is KYCRegistryUpgradeable, IComplianceCompatib
     /// @notice 检查账户是否冻结
     /// @param account 要检查的地址
     /// @return bool 是否冻结
-    function isFrozen(address account) public view override returns (bool) {
+    function isFrozen(address account) public view override(IComplianceCompatible) returns (bool) {
         return _frozenAccounts[account];
     }
     
     /// @notice 重写 isKYCApproved，增加冻结检查
     /// @dev 冻结的账户即使 KYC 通过也不被认为是 approved
-    function isKYCApproved(address user) public view override returns (bool) {
+    function isKYCApproved(address user) public view override(KYCRegistryUpgradeable) returns (bool) {
         if (_frozenAccounts[user]) {
             return false;
         }
@@ -64,22 +64,27 @@ contract KYCRegistryUpgradeableV2 is KYCRegistryUpgradeable, IComplianceCompatib
     /// @notice 检查用户是否通过合规验证（类 ERC-3643）
     /// @param _userAddress 用户地址
     /// @return bool 是否通过验证（KYC approved 且未冻结）
-    function isVerified(address _userAddress) external view override returns (bool) {
+    function isVerified(address _userAddress) external view override(IComplianceCompatible) returns (bool) {
         return isKYCApproved(_userAddress);
     }
     
     /// @notice 获取 KYC 等级
-    function getKYCLevel(address _user) external view override returns (uint8) {
+    function getKYCLevel(address _user) external view override(IComplianceCompatible) returns (uint8) {
         return getRecord(_user).level;
     }
     
     /// @notice 获取风险等级（复用 level 字段）
-    function getRiskLevel(address _user) external view override returns (uint8) {
-        return super.getRiskLevel(_user);
+    function getRiskLevel(address _user)
+        public
+        view
+        override(IComplianceCompatible, KYCRegistryUpgradeable)
+        returns (uint8)
+    {
+        return KYCRegistryUpgradeable.getRiskLevel(_user);
     }
     
     /// @notice 获取过期时间
-    function getExpiry(address _user) external view override returns (uint256) {
+    function getExpiry(address _user) external view override(IComplianceCompatible) returns (uint256) {
         return getRecord(_user).expiry;
     }
     

@@ -32,6 +32,12 @@ contract ProxyAdmin {
         _owner = newOwner;
     }
 
+    /// @notice Upgrades `proxy` to `implementation` without calling any function.
+    /// @dev 兼容 OpenZeppelin ProxyAdmin 的 `upgrade` 接口，供测试和脚本复用。
+    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) external onlyOwner {
+        proxy.upgradeToAndCall(implementation, "");
+    }
+
     /// @notice Upgrades `proxy` to `implementation` and optionally calls a function on the new implementation.
     /// @dev 与 OZ ProxyAdmin 的 upgradeAndCall 语义保持一致：
     ///      - 由 ProxyAdmin owner 调用
