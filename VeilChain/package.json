@@ -1,0 +1,28 @@
+{
+  "name": "@veil/rwa-contracts",
+  "version": "2.0.0",
+  "description": "Veil RWA L2 Smart Contracts - Phase 2 Enhanced",
+  "scripts": {
+    "typechain": "typechain --target ethers-v6 --out-dir typechain-types './out/KYCRegistryUpgradeableV2.sol/KYCRegistryUpgradeableV2.json' './out/AccessControllerUpgradeable.sol/AccessControllerUpgradeable.json' './out/LimitControllerUpgradeable.sol/LimitControllerUpgradeable.json' './out/KYCGuardedTokenUpgradeable.sol/KYCGuardedTokenUpgradeable.json' './out/AssetRegistryUpgradeable.sol/AssetRegistryUpgradeable.json' './out/RWAProductUpgradeable.sol/RWAProductUpgradeable.json'",
+    "typechain:all": "forge build && npm run typechain"
+  },
+  "devDependencies": {
+    "@openzeppelin/defender-sdk-proposal-client": "^1.0.0",
+    "@openzeppelin/defender-sdk-deploy-client": "^1.0.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "typechain": "^8.3.2",
+    "ethers": "^6.10.0",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0"
+  },
+  "keywords": [
+    "rwa",
+    "polygon-cdk",
+    "zkEVM",
+    "kyc",
+    "compliance"
+  ],
+  "author": "Veil Team",
+  "license": "MIT"
+}
+
