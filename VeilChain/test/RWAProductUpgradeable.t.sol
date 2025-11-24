@@ -187,11 +187,8 @@ contract RWAProductUpgradeableTest is Test {
         // Fast-forward to maturity
         vm.warp(block.timestamp + 11 days);
 
-        // Compute max possible interest (upper bound, exact daysToMaturity depends on lastInterestDistribution)
-        uint256 daysToMaturity = (product.products(PRODUCT_ID).maturityDate() - product.lastInterestDistribution(PRODUCT_ID)) / 1 days;
-        uint256 finalInterestUpper = shares * 100e18 * 500 * daysToMaturity / 365 / 10000 / 1e18;
-
-        token.mint(address(product), principal + finalInterestUpper);
+        // 这里不精确计算利息，只要确保合约里有足够余额覆盖本金 + 利息上界即可
+        token.mint(address(product), principal * 2);
 
         address[] memory investors = new address[](1);
         investors[0] = investor;
