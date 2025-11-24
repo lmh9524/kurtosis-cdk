@@ -56,7 +56,7 @@ async function main() {
   console.log('📝 Setting KYC status...');
   const tx = await kycRegistry.setKYCStatus(
     userAddress,
-    1, // Status.Approved (枚举值 1)
+    2, // Status.Approved (枚举值 2，对应 enum Status { None, Pending, Approved, ... })
     2, // kycLevel: 2
     Math.floor(Date.now() / 1000) + 365 * 24 * 3600, // 1 年后过期
     ethers.id('provider-veil-001') // kycProviderId
