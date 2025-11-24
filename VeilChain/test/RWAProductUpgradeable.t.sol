@@ -252,7 +252,13 @@ contract RWAProductUpgradeableTest is Test {
             500
         );
 
-        // 默认 mock 为 false（未 KYC），不设置 mockCall 即为 0（false）
+        // 显式 mock KYC 为 false（未通过）
+        vm.mockCall(
+            kycRegistry,
+            abi.encodeWithSelector(IKYCRegistry.isKYCApproved.selector, investor),
+            abi.encode(false)
+        );
+
         _mintAndApprove(investor, 100e18 * 100e18 / 1e18);
 
         vm.expectRevert("KYC required");
