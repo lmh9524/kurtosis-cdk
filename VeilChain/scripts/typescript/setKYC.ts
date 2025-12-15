@@ -12,17 +12,30 @@ import * as fs from 'fs';
  */
 
 async function main() {
-  // 读取部署地址（如果存在）
   let proxyAddress: string;
-  try {
-    const deployments = JSON.parse(
-      fs.readFileSync('deployments/kurtosis/addresses.json', 'utf8')
-    );
-    proxyAddress = deployments.contracts.KYCRegistryProxy.address;
-  } catch {
-    // 如果没有部署文件，使用默认地址
-    proxyAddress = '0x57f47C1F48b1078608f259B17D11f5ac925e5E04';
-    console.warn('⚠️  Using default proxy address:', proxyAddress);
+
+  // 优先使用环境变量覆盖（兼容不同环境）
+  const envAddr =
+    process.env.KYC_REGISTRY_PROXY ||
+    process.env.KYC_REGISTRY_ADDRESS ||
+    process.env.KYC_REGISTRY_ADDR;
+
+  if (envAddr) {
+    proxyAddress = envAddr;
+    console.log('🔧 Using KYC registry address from env:', proxyAddress);
+  } else {
+    // 其次尝试从部署文件读取
+    try {
+      const deployments = JSON.parse(
+        fs.readFileSync('deployments/kurtosis/addresses.json', 'utf8')
+      );
+      proxyAddress = deployments.contracts.KYCRegistryProxy.address;
+      console.log('📁 Using KYC registry address from deployments file:', proxyAddress);
+    } catch {
+      // 如果没有部署文件，使用默认地址（当前 PoC 环境的 Proxy）
+      proxyAddress = '0x57f47C1F48b1078608f259B17D11f5ac925e5E04';
+      console.warn('⚠️  Using default proxy address:', proxyAddress);
+    }
   }
 
   // 连接到 Kurtosis L2（从 foundry.toml 读取）
@@ -69,17 +82,30 @@ async function main() {
   // 验证结果
   console.log('🔍 Checking KYC status after...');
   const isApprovedAfter = await kycRegistry.isKYCApproved(userAddress);
-  const kycLevel = await kycRegistry.getKYCLevel(userAddress);
-  const riskLevel = await kycRegistry.getRiskLevel(userAddress);
-  const expiry = await kycRegistry.getExpiry(userAddress);
-  const isVerified = await kycRegistry.isVerified(userAddress);
+  // 兼容 V1/V2：优先通过 getRecord 读取 level / expiry / providerId
+  let kycLevel: bigint | undefined;
+  let riskLevel: bigint | undefined;
+  let expiry: bigint | undefined;
+
+  try {
+    const record = await kycRegistry.getRecord(userAddress);
+    kycLevel = record.level;
+    expiry = record.expiry;
+  } catch {
+    console.warn('⚠️  getRecord() not available on this KYC contract');
+  }
+  try {
+    riskLevel = await kycRegistry.getRiskLevel(userAddress);
+  } catch {
+    console.warn('⚠️  getRiskLevel() not available on this KYC contract');
+  }
   
   console.log('\n📊 KYC Status:');
   console.log('   Approved:', isApprovedAfter);
-  console.log('   Verified:', isVerified);
-  console.log('   KYC Level:', kycLevel);
-  console.log('   Risk Level:', riskLevel);
-  console.log('   Expiry:', new Date(Number(expiry) * 1000).toISOString());
+  if (kycLevel !== undefined) console.log('   KYC Level:', kycLevel.toString());
+  if (riskLevel !== undefined) console.log('   Risk Level:', riskLevel.toString());
+  if (expiry !== undefined)
+    console.log('   Expiry:', new Date(Number(expiry) * 1000).toISOString());
   
   console.log('\n✅ Script completed successfully!');
 }
